@@ -4,7 +4,8 @@ const mongoose = require("mongoose");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const Campground = require("./models/campground");
-const ExpressError = require("./utils/expressError")
+const ExpressError = require("./utils/expressError");
+const Review = require("./models/review");
 
 //connecting to db
 mongoose
@@ -52,7 +53,7 @@ app.get("/campgrounds/new", (req, res) => {
 //show individual campgrounds
 app.get("/campgrounds/:id", async (req, res, next) => {
   try {
-    const campground = await Campground.findById(req.params.id);
+    const campground = await Campground.findById(req.params.id).populate('reviews');
     res.render("campgrounds/show", { campground });
   } catch (err) {
     next(err);
@@ -96,7 +97,22 @@ app.delete("/campgrounds/:id", async (req, res) => {
     next(err);
   }
 });
+//save a review to db
+app.post('/campgrounds/:id/reviews',async (req,res)=>{
+  try {
+    const campground = await Campground.findById(req.params.id)
+    const review = new Review(req.body.review)
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${req.params.id}`)
+  } catch (error) {
+    next(err)
+  }
+})
+//delete a review
 
+//generating a 404 error
 app.all('*',(req,res,next)=>{
   let error = new ExpressError("Page not found", 404)
   next(error)

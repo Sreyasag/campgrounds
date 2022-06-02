@@ -20,6 +20,32 @@
                 <button class="btn btn-primary">Delete</button>
               </form>
             </div>
-          </div>  
+          </div>
+          <div class="card card-body mt-3 mb-3">
+            <form action="/campgrounds/<%= campground._id %>/reviews" method="POST" class="needs-validation" novalidate >
+              <h3 class="mb-3">Leave a review</h3>
+              <div class="mb-3">
+                <label class="form-label" for="rating">Rating : </label><br>
+                <input  type="range" min="1" max="5" name="review[rating]" id="rating">
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="review">Comments :</label>
+                <textarea class="form-control" name="review[body]" id="review" cols="30" rows="2" required></textarea>
+                <button class="btn btn-primary mt-3" type="submit">Submit</button>
+              </div>
+            </form>
+          </div> 
+          <div >
+            <% for (let x of campground.reviews){ %>
+              <div class="card card-body mb-2">
+                <h5 class="card-title">Rating: <%= x.rating %></h5>
+                <p><%= x.body %> </p>
+                <form action="/campgrounds/<%= campground._id %>?_method=DELETE " method="POST">
+                  <button class="btn btn-secondary">Delete</button>
+                </form>
+              </div>
+            <% } %> 
+          </div> 
     </div>
+
   </div>
