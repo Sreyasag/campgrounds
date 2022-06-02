@@ -6,6 +6,7 @@ const ejsMate = require("ejs-mate");
 const Campground = require("./models/campground");
 const ExpressError = require("./utils/expressError");
 const Review = require("./models/review");
+const { findByIdAndDelete } = require("./models/campground");
 
 //connecting to db
 mongoose
@@ -38,7 +39,7 @@ app.get("/", (req, res) => {
   res.render("home");
 });
 //show campgrounds index
-app.get("/campgrounds", async (req, res) => {
+app.get("/campgrounds", async (req, res,next) => {
   try {
     const campgrounds = await Campground.find({});
     res.render("campgrounds/index", { campgrounds });
@@ -60,7 +61,7 @@ app.get("/campgrounds/:id", async (req, res, next) => {
   }
 });
 //add new campground data (coming from add form)to db
-app.post("/campgrounds", async (req, res) => {
+app.post("/campgrounds", async (req, res, next) => {
   try {
     if (!req.body.campground){throw new ExpressError('invalid campground data',400)};
     const campground = new Campground(req.body.campground); // because the form is made such that the req.body = {campground: {title: ..., location: ...} }
@@ -71,7 +72,7 @@ app.post("/campgrounds", async (req, res) => {
   }
 });
 //show the edit campground form
-app.get("/campgrounds/:id/edit", async (req, res) => {
+app.get("/campgrounds/:id/edit", async (req, res, next) => {
   try {
     const campground = await Campground.findById(req.params.id);
     res.render("campgrounds/edit", { campground });
@@ -80,7 +81,7 @@ app.get("/campgrounds/:id/edit", async (req, res) => {
   }
 });
 //update the edited campground data(from edit form) to db
-app.put("/campgrounds/:id", async (req, res) => {
+app.put("/campgrounds/:id", async (req, res, next) => {
   try {
     await Campground.findByIdAndUpdate(req.params.id, req.body.campground); //// because the form is made such that the req.body = {campground: {title: ..., location: ...} }
     res.redirect(`/campgrounds/${req.params.id}`);
@@ -89,7 +90,7 @@ app.put("/campgrounds/:id", async (req, res) => {
   }
 });
 //delete a campground
-app.delete("/campgrounds/:id", async (req, res) => {
+app.delete("/campgrounds/:id", async (req, res, next) => {
   try {
     await Campground.findByIdAndDelete(req.params.id);
     res.redirect("/campgrounds");
@@ -98,7 +99,7 @@ app.delete("/campgrounds/:id", async (req, res) => {
   }
 });
 //save a review to db
-app.post('/campgrounds/:id/reviews',async (req,res)=>{
+app.post('/campgrounds/:id/reviews',async (req,res, next)=>{
   try {
     const campground = await Campground.findById(req.params.id)
     const review = new Review(req.body.review)
@@ -107,11 +108,20 @@ app.post('/campgrounds/:id/reviews',async (req,res)=>{
     await campground.save();
     res.redirect(`/campgrounds/${req.params.id}`)
   } catch (error) {
-    next(err)
+    next(error)
   }
 })
 //delete a review
-
+app.delete('/campgrounds/:id/reviews/:reviewId', async (req,res, next)=>{
+  try {
+    const {id, reviewId} = req.params
+    await Campground.findByIdAndUpdate(id,{$pull:{reviews: reviewId}})
+    await Review.findByIdAndDelete(req.params.reviewId)
+    res.redirect(`/campgrounds/${id}`)
+  } catch (error) {
+    next(error)
+  }
+})
 //generating a 404 error
 app.all('*',(req,res,next)=>{
   let error = new ExpressError("Page not found", 404)
