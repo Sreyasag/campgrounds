@@ -40,7 +40,9 @@ router.post("/",isLoggedin, async (req, res, next) => {
       throw new ExpressError("invalid campground data", 400);
     }
     const campground = new Campground(req.body.campground); // because the form is made such that the req.body = {campground: {title: ..., location: ...} }
+    campground.author = req.user;
     const camp = await campground.save();
+    console.log(camp)
     req.flash('success', 'created a new campground');
     res.redirect(`/campgrounds/${camp._id}`);
   } catch (err) {

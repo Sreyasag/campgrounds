@@ -13,7 +13,11 @@ campgroundSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'Review'
     }
-  ]
+  ],
+  author:{
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  }
 });
 
 //mongoose  middleware which triggers if a campground object is deleted.
