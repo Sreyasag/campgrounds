@@ -23,6 +23,10 @@ router.get("/:id", async (req, res, next) => {
     const campground = await Campground.findById(req.params.id).populate(
       "reviews"
     );
+    if(!campground){
+      req.flash('error', 'campground not found');
+      return res.redirect('/campgrounds')
+    }
     res.render("campgrounds/show", { campground });
   } catch (err) {
     next(err);
@@ -36,6 +40,7 @@ router.post("/", async (req, res, next) => {
     }
     const campground = new Campground(req.body.campground); // because the form is made such that the req.body = {campground: {title: ..., location: ...} }
     const camp = await campground.save();
+    req.flash('success', 'created a new campground');
     res.redirect(`/campgrounds/${camp._id}`);
   } catch (err) {
     next(err);
@@ -54,6 +59,7 @@ router.get("/:id/edit", async (req, res, next) => {
 router.put("/:id", async (req, res, next) => {
   try {
     await Campground.findByIdAndUpdate(req.params.id, req.body.campground); //// because the form is made such that the req.body = {campground: {title: ..., location: ...} }
+    req.flash('success', 'updated the campground')
     res.redirect(`/campgrounds/${req.params.id}`);
   } catch (err) {
     next(err);
@@ -63,6 +69,7 @@ router.put("/:id", async (req, res, next) => {
 router.delete("/:id", async (req, res, next) => {
   try {
     await Campground.findByIdAndDelete(req.params.id);
+    req.flash('success', 'deleted campground')
     res.redirect("/campgrounds");
   } catch (err) {
     next(err);
