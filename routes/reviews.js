@@ -2,15 +2,16 @@ const express = require("express");
 const Campground = require("../models/campground");
 const Review = require("../models/review");
 const ExpressError = require("../utils/expressError");
-
+const {isLoggedin} = require('../middleware')
 const router = express.Router({mergeParams:true});// mergeparams will make the :id param(which is in the app.js file) available inside this route file
 
 
 //save a review to db
-router.post('/',async (req,res, next)=>{
+router.post('/', isLoggedin, async (req,res, next)=>{
     try {
       const campground = await Campground.findById(req.params.id)
-      const review = new Review(req.body.review)
+      const review = new Review(req.body.review);
+      review.author = req.user._id; 
       campground.reviews.push(review);
       await review.save();
       await campground.save();
@@ -21,7 +22,7 @@ router.post('/',async (req,res, next)=>{
     }
   })
   //delete a review
-  router.delete('/:reviewId', async (req,res, next)=>{
+  router.delete('/:reviewId',isLoggedin, async (req,res, next)=>{
     try {
       const {id, reviewId} = req.params
       await Campground.findByIdAndUpdate(id,{$pull:{reviews: reviewId}})

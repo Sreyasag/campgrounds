@@ -24,6 +24,7 @@
             </div>
             <% } %> 
           </div>
+          <% if(currentUser) {%> 
           <div class="card card-body mt-3 mb-3">
             <form action="/campgrounds/<%= campground._id %>/reviews" method="POST" class="needs-validation" novalidate >
               <h3 class="mb-3">Leave a review</h3>
@@ -38,14 +39,18 @@
               </div>
             </form>
           </div> 
+          <% } %> 
           <div >
             <% for (let x of campground.reviews){ %>
               <div class="card card-body mb-2">
-                <h5 class="card-title">Rating: <%= x.rating %></h5>
+                <h5 class="card-title"><%= x.author.username %></h5>
+                <p>Rating: <%= x.rating %>  </p>
                 <p><%= x.body %> </p>
+                <%if( currentUser && (currentUser._id.equals(x.author._id))){%> 
                 <form action="/campgrounds/<%= campground._id %>/reviews/<%= x._id %>?_method=DELETE " method="POST">
                   <button class="btn btn-secondary">Delete</button>
                 </form>
+                <% } %> 
               </div>
             <% } %> 
           </div> 

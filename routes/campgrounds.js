@@ -22,11 +22,12 @@ router.get("/new",isLoggedin, (req, res) => {
   res.render("campgrounds/new");
 });
 //show individual campgrounds
-router.get("/:id",isLoggedin, async (req, res, next) => {
+router.get("/:id", async (req, res, next) => {
   try {
-    const campground = await Campground.findById(req.params.id).populate(
-      "reviews"
-    );
+    const campground = await Campground.findById(req.params.id).populate({
+      path :"reviews",
+      populate:{path:'author'}
+    });
     if(!campground){
       req.flash('error', 'campground not found');
       return res.redirect('/campgrounds')
