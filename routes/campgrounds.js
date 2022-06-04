@@ -1,6 +1,7 @@
 const express = require("express");
 const Campground = require("../models/campground");
 const ExpressError = require("../utils/expressError");
+const { isLoggedin } = require('../middleware')
 
 router = express.Router();
 
@@ -14,11 +15,11 @@ router.get("/", async (req, res, next) => {
   }
 });
 //show add new campground form
-router.get("/new", (req, res) => {
+router.get("/new",isLoggedin, (req, res) => {
   res.render("campgrounds/new");
 });
 //show individual campgrounds
-router.get("/:id", async (req, res, next) => {
+router.get("/:id",isLoggedin, async (req, res, next) => {
   try {
     const campground = await Campground.findById(req.params.id).populate(
       "reviews"
@@ -33,7 +34,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 //add new campground data (coming from add form)to db
-router.post("/", async (req, res, next) => {
+router.post("/",isLoggedin, async (req, res, next) => {
   try {
     if (!req.body.campground) {
       throw new ExpressError("invalid campground data", 400);
@@ -47,7 +48,7 @@ router.post("/", async (req, res, next) => {
   }
 });
 //show the edit campground form
-router.get("/:id/edit", async (req, res, next) => {
+router.get("/:id/edit",isLoggedin, async (req, res, next) => {
   try {
     const campground = await Campground.findById(req.params.id);
     res.render("campgrounds/edit", { campground });
@@ -56,7 +57,7 @@ router.get("/:id/edit", async (req, res, next) => {
   }
 });
 //update the edited campground data(from edit form) to db
-router.put("/:id", async (req, res, next) => {
+router.put("/:id",isLoggedin, async (req, res, next) => {
   try {
     await Campground.findByIdAndUpdate(req.params.id, req.body.campground); //// because the form is made such that the req.body = {campground: {title: ..., location: ...} }
     req.flash('success', 'updated the campground')
@@ -66,7 +67,7 @@ router.put("/:id", async (req, res, next) => {
   }
 });
 //delete a campground
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id",isLoggedin, async (req, res, next) => {
   try {
     await Campground.findByIdAndDelete(req.params.id);
     req.flash('success', 'deleted campground')
@@ -77,3 +78,4 @@ router.delete("/:id", async (req, res, next) => {
 });
 
 module.exports = router;
+  
