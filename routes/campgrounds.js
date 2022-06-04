@@ -1,9 +1,12 @@
 const express = require("express");
 const Campground = require("../models/campground");
 const ExpressError = require("../utils/expressError");
-const { isLoggedin } = require('../middleware')
+const { isLoggedin, isAuthor } = require('../middleware')
 
 router = express.Router();
+
+
+
 
 //show campgrounds index
 router.get("/", async (req, res, next) => {
@@ -42,7 +45,6 @@ router.post("/",isLoggedin, async (req, res, next) => {
     const campground = new Campground(req.body.campground); // because the form is made such that the req.body = {campground: {title: ..., location: ...} }
     campground.author = req.user;
     const camp = await campground.save();
-    console.log(camp)
     req.flash('success', 'created a new campground');
     res.redirect(`/campgrounds/${camp._id}`);
   } catch (err) {
@@ -50,7 +52,7 @@ router.post("/",isLoggedin, async (req, res, next) => {
   }
 });
 //show the edit campground form
-router.get("/:id/edit",isLoggedin, async (req, res, next) => {
+router.get("/:id/edit",isLoggedin,isAuthor, async (req, res, next) => {
   try {
     const campground = await Campground.findById(req.params.id);
     res.render("campgrounds/edit", { campground });
@@ -59,7 +61,7 @@ router.get("/:id/edit",isLoggedin, async (req, res, next) => {
   }
 });
 //update the edited campground data(from edit form) to db
-router.put("/:id",isLoggedin, async (req, res, next) => {
+router.put("/:id",isLoggedin,isAuthor, async (req, res, next) => {
   try {
     await Campground.findByIdAndUpdate(req.params.id, req.body.campground); //// because the form is made such that the req.body = {campground: {title: ..., location: ...} }
     req.flash('success', 'updated the campground')
@@ -69,7 +71,7 @@ router.put("/:id",isLoggedin, async (req, res, next) => {
   }
 });
 //delete a campground
-router.delete("/:id",isLoggedin, async (req, res, next) => {
+router.delete("/:id",isLoggedin,isAuthor, async (req, res, next) => {
   try {
     await Campground.findByIdAndDelete(req.params.id);
     req.flash('success', 'deleted campground')

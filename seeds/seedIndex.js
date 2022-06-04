@@ -31,7 +31,8 @@ const addSeedData = async function () {
       location: `${x.city}, ${x.state}`,
       image: 'https://source.unsplash.com/collection/483251',
       description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate nemo est quidem cumque nesciunt praesentium numquam quod vel eaque nobis, maiores sunt necessitatibus ratione itaque dolore obcaecati facere reiciendis natus!",
-      price: (Math.floor(Math.random()* 200))+10
+      price: (Math.floor(Math.random()* 200))+10,
+      
     });
     await camp.save();
   }

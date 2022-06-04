@@ -13,6 +13,8 @@
               <li class="list-group-item"><h5><%= campground.location %></h5></li>
               <li class="list-group-item">Rs.<%= campground.price %></li>
             </ul>
+             
+            <%if( currentUser && (currentUser._id.equals(campground.author))){%> 
             <div class="card-body ">
               <a href="/campgrounds"><button class="btn btn-primary">All camps</button></a>
               <a href="/campgrounds/<%= campground._id %>/edit "><button class="btn btn-primary">Edit</button></a>
@@ -20,6 +22,7 @@
                 <button class="btn btn-primary">Delete</button>
               </form>
             </div>
+            <% } %> 
           </div>
           <div class="card card-body mt-3 mb-3">
             <form action="/campgrounds/<%= campground._id %>/reviews" method="POST" class="needs-validation" novalidate >
