@@ -1,4 +1,6 @@
 const express = require("express");
+const passport = require("passport");
+
 const User= require('../models/user')
 const router= express.Router();
 //render the regiser form
@@ -23,9 +25,10 @@ router.post('/register',async (req,res)=>{
 router.get('/login',(req,res)=>{
     res.render('users/login')
 })
-//log in logic
-router.post('/login',(req,res)=>{
-    
+//login logic
+router.post('/login', passport.authenticate('local',{failureFlash:true, failureRedirect:'/login'}), (req,res)=>{
+    req.flash('success','Welcome back!');
+    res.redirect('/campgrounds')
 })
 
 module.exports=router;
