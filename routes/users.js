@@ -7,7 +7,24 @@ router.get('/register',(req,res)=>{
 })
 
 //save a new account  registration
-router.post('/register',(req,res)=>{
+router.post('/register',async (req,res)=>{
+    try {
+        const {username, email, password} = req.body;
+        const user = new User({username, email});
+        await User.register(user,password)
+        req.flash('success','Account created')
+        res.redirect ('/campgrounds')
+    } catch (error) {
+        req.flash('error',error.message);
+        res.redirect('/register');
+    }
+})
+//render the login form
+router.get('/login',(req,res)=>{
+    res.render('users/login')
+})
+//log in logic
+router.post('/login',(req,res)=>{
     
 })
 
